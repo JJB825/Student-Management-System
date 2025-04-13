@@ -1,17 +1,17 @@
-const express = require('express');
-const {
-    addDetails,
-    viewDetails,
-    searchDetails,
-    updateDetails,
-    deleteDetails,
-} = require('../controllers/student');
-const router = express.Router();
+import { Router } from "express";
+import {
+  addStudentDetails,
+  getStudentDetails,
+  getSpecificStudentDetails,
+  updateStudentDetails,
+  deleteStudentDetails,
+} from "../controllers/student.js";
+const router = Router();
 
-router.route('/add').post(addDetails);
-router.route('/view').get(viewDetails);
-router.route('/:id').get(searchDetails);
-router.route('/update/:id').put(updateDetails);
-router.route('/delete/:id').delete(deleteDetails);
+router.route("/add").post(addStudentDetails);
+router.route("/view").get(getStudentDetails);
+router.route("/view/:studentId").get(getSpecificStudentDetails);
+router.route("/update/:studentId").patch(updateStudentDetails);
+router.route("/delete/:studentId").delete(deleteStudentDetails);
 
-module.exports = router;
+export default router;

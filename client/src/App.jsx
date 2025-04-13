@@ -1,13 +1,21 @@
-import { useState } from 'react';
-import './App.css';
-import Student from './Components/Student';
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import AddStudentPage from "./pages/AddStudentPage";
+import UpdateStudentPage from "./pages/UpdateUserPage";
 
 function App() {
-    return (
-        <div className='App'>
-            <Student />
-        </div>
-    );
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/add-student" element={<AddStudentPage />} />
+        <Route
+          path="/update-student/:studentId"
+          element={<UpdateStudentPage />}
+        />
+      </Routes>
+    </>
+  );
 }
 
 export default App;
