@@ -20,7 +20,7 @@ const StudentTable = () => {
     } catch (error) {
       showErrorToast(
         error?.response?.data?.message ??
-          "Some error occurred while adding new user"
+          "Some error occurred while deleting a student"
       );
     }
   };

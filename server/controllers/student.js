@@ -34,12 +34,14 @@ const addStudentDetails = async (req, res) => {
   };
   const [rows] = await db.execute(duplicateEntryCheckQuery, [stname]);
   let existingStudent = rows[0];
-  delete existingStudent.id;
+  if (existingStudent) {
+    delete existingStudent.id;
 
-  if (JSON.stringify(existingStudent) === JSON.stringify(newStudent)) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Student exists with same details" });
+    if (JSON.stringify(existingStudent) === JSON.stringify(newStudent)) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Student exists with same details" });
+    }
   }
 
   const values = [stname, course, fee, mobile];
