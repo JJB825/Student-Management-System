@@ -47,8 +47,10 @@ const UpdateUserPage = () => {
       });
       showSuccessToast(response.data.message);
     } catch (error) {
-      showErrorToast("Some error occurred while updating user");
-      console.error(error);
+      showErrorToast(
+        error?.response?.data?.message ??
+          "Some error occurred while adding new user"
+      );
     }
 
     form.reset();

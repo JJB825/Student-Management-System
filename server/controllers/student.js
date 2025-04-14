@@ -24,6 +24,24 @@ const addStudentDetails = async (req, res) => {
       .json({ success: false, message: "Mobile must be a valid number" });
   }
 
+  // see for duplicate entry
+  const duplicateEntryCheckQuery = "SELECT * FROM student WHERE stname = ?";
+  const newStudent = {
+    stname: stname,
+    course: course,
+    fee: parseInt(fee),
+    mobile: mobile,
+  };
+  const [rows] = await db.execute(duplicateEntryCheckQuery, [stname]);
+  let existingStudent = rows[0];
+  delete existingStudent.id;
+
+  if (JSON.stringify(existingStudent) === JSON.stringify(newStudent)) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Student exists with same details" });
+  }
+
   const values = [stname, course, fee, mobile];
   const sqlQuery =
     "INSERT INTO student (stname, course, fee, mobile) VALUES (?,?,?,?)";

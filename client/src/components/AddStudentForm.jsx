@@ -31,8 +31,10 @@ const AddStudentForm = () => {
       dispatch({ type: actions.CREATE_STUDENT, payload: formObject });
       showSuccessToast(response.data.message);
     } catch (error) {
-      showErrorToast("Some error occurred while adding new user");
-      console.error(error);
+      showErrorToast(
+        error?.response?.data?.message ??
+          "Some error occurred while adding new user"
+      );
     }
 
     form.reset();
