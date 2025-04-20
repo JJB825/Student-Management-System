@@ -1,9 +1,9 @@
-import { db } from "../db/connect.js";
+const db = require("../db/connect.js");
 
 // @description Add new student details
 // @route POST api/student/add
 // @access PUBLIC
-const addStudentDetails = async (req, res) => {
+const addStudentDetails = (req, res) => {
   const { stname, course, fee, mobile } = req.body;
 
   if ([stname, course, fee, mobile].some((field) => field?.trim() === "")) {
@@ -18,74 +18,81 @@ const addStudentDetails = async (req, res) => {
       .json({ success: false, message: "Fee must be a valid number" });
   }
 
-  if (isNaN(mobile)) {
+  const mobileRegex = /^(\+91|91|0)?[- ]?(\d{10})$/;
+  if (!mobileRegex.test(mobile)) {
     return res
       .status(404)
-      .json({ success: false, message: "Mobile must be a valid number" });
+      .json({ success: false, message: "Entered mobile number is not valid" });
   }
 
-  // see for duplicate entry
   const duplicateEntryCheckQuery = "SELECT * FROM student WHERE stname = ?";
-  const newStudent = {
-    stname: stname,
-    course: course,
-    fee: parseInt(fee),
-    mobile: mobile,
-  };
-  const [rows] = await db.execute(duplicateEntryCheckQuery, [stname]);
-  let existingStudent = rows[0];
-  if (existingStudent) {
-    delete existingStudent.id;
-
-    if (JSON.stringify(existingStudent) === JSON.stringify(newStudent)) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Student exists with same details" });
+  db.query(duplicateEntryCheckQuery, [stname], (err, rows) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Some error occurred while checking duplicates",
+      });
     }
-  }
 
-  const values = [stname, course, fee, mobile];
-  const sqlQuery =
-    "INSERT INTO student (stname, course, fee, mobile) VALUES (?,?,?,?)";
+    const newStudent = { stname, course, fee: parseInt(fee), mobile };
+    let existingStudent = rows[0];
+    if (existingStudent) {
+      delete existingStudent.id;
+      if (JSON.stringify(existingStudent) === JSON.stringify(newStudent)) {
+        return res.status(404).json({
+          success: false,
+          message: "Student exists with same details",
+        });
+      }
+    }
 
-  try {
-    await db.execute(sqlQuery, values);
-    return res
-      .status(201)
-      .json({ success: true, message: "New Student added successfully" });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Some error occurred while adding new student",
+    const values = [stname, course, fee, mobile];
+    const sqlQuery =
+      "INSERT INTO student (stname, course, fee, mobile) VALUES (?,?,?,?)";
+    db.query(sqlQuery, values, (err) => {
+      if (err) {
+        console.error(err);
+
+        return res.status(500).json({
+          success: false,
+          message: "Some error occurred while adding new student",
+        });
+      }
+
+      return res
+        .status(201)
+        .json({ success: true, message: "New Student added successfully" });
     });
-  }
+  });
 };
 
 // @description View student details
 // @route GET api/student/view
 // @access PUBLIC
-const getStudentDetails = async (req, res) => {
+const getStudentDetails = (req, res) => {
   const sqlQuery = "SELECT * FROM student";
 
-  try {
-    const [rows] = await db.execute(sqlQuery);
+  db.query(sqlQuery, (err, rows) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        success: false,
+        message: "Some error occurred while fetching details",
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: "Student details fetched successfully",
       data: rows,
     });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Some error occurred while fetching details",
-    });
-  }
+  });
 };
 
 // @description Search Student Details
 // @route GET api/student/:studentId
 // @access PUBLIC
-const getSpecificStudentDetails = async (req, res) => {
+const getSpecificStudentDetails = (req, res) => {
   const { studentId } = req.params;
 
   if (!studentId || isNaN(studentId)) {
@@ -95,8 +102,14 @@ const getSpecificStudentDetails = async (req, res) => {
   }
 
   const sqlQuery = "SELECT * FROM student WHERE id = ?";
-  try {
-    const [rows] = await db.execute(sqlQuery, [studentId]);
+  db.query(sqlQuery, [studentId], (err, rows) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: `Some error occurred while fetching student with id ${studentId} details`,
+      });
+    }
+
     if (!rows || !rows.length) {
       return res.status(404).json({
         success: false,
@@ -109,18 +122,13 @@ const getSpecificStudentDetails = async (req, res) => {
       message: "Student details fetched successfully",
       data: rows[0],
     });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Some error occurred while fetching student details",
-    });
-  }
+  });
 };
 
 // @description Update the student details
 // @route PATCH api/student/update/:studentId
 // @access PUBLIC
-const updateStudentDetails = async (req, res) => {
+const updateStudentDetails = (req, res) => {
   const { studentId } = req.params;
   if (!studentId || isNaN(studentId)) {
     return res
@@ -142,13 +150,18 @@ const updateStudentDetails = async (req, res) => {
       .json({ success: false, message: "Fee must be a valid number" });
   }
 
-  if (mobile !== undefined && mobile?.trim() !== "" && isNaN(mobile)) {
+  const mobileRegex = /^(\+91|91|0)?[- ]?(\d{10})$/;
+  if (
+    mobile !== undefined &&
+    mobile?.trim() !== "" &&
+    !mobileRegex.test(mobile)
+  ) {
     return res
       .status(404)
-      .json({ success: false, message: "Mobile must be a valid number" });
+      .json({ success: false, message: "Entered mobile number is not valid" });
   }
 
-  let sqlQuery = "UPDATE student set ";
+  let sqlQuery = "UPDATE student SET ";
   const nonEmptyFields = [];
   const updates = [];
   const fieldVals = new Map([
@@ -166,32 +179,33 @@ const updateStudentDetails = async (req, res) => {
   });
 
   sqlQuery += updates.join(", ");
-  sqlQuery += " where id = ?;";
+  sqlQuery += " WHERE id = ?;";
 
-  try {
-    const [result] = await db.execute(sqlQuery, [...nonEmptyFields, studentId]);
+  db.query(sqlQuery, [...nonEmptyFields, studentId], (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Some error occurred while updating student details",
+      });
+    }
+
     if (!result.affectedRows) {
       return res.status(404).json({
         success: false,
         message: `Student with id ${studentId} not found`,
       });
     }
-    return res.status(201).json({
-      success: true,
-      message: "Student details updated successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Some error occurred while updating student details",
-    });
-  }
+
+    return res
+      .status(201)
+      .json({ success: true, message: "Student details updated successfully" });
+  });
 };
 
 // @description Delete the student details
 // @route DELETE api/student/delete/:studentId
 // @access PUBLIC
-const deleteStudentDetails = async (req, res) => {
+const deleteStudentDetails = (req, res) => {
   const { studentId } = req.params;
 
   if (!studentId || isNaN(studentId)) {
@@ -201,27 +215,29 @@ const deleteStudentDetails = async (req, res) => {
   }
 
   const sqlQuery = "DELETE FROM student WHERE id = ?";
-  try {
-    const [result] = await db.execute(sqlQuery, [studentId]);
+  db.query(sqlQuery, [studentId], (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: `Some error occurred while deleting student with id ${studentId}`,
+      });
+    }
+
     if (!result.affectedRows) {
       return res.status(404).json({
         success: false,
         message: `Student with id ${studentId} not found`,
       });
     }
+
     return res.status(201).json({
       success: true,
       message: `Student with id ${studentId} deleted successfully`,
     });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: `Some error occurred while deleting student with id ${studentId}`,
-    });
-  }
+  });
 };
 
-export {
+module.exports = {
   addStudentDetails,
   getStudentDetails,
   getSpecificStudentDetails,

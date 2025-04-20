@@ -1,0 +1,32 @@
+base_url : "http://localhost:5173"
+home page: "/"
+
+On home page, a list of already registered students are shown in table with id, name, course, fee, mobile and action as column names
+action includes two buttons in every row, for updating details of student and deleting it
+
+Project consists of three types of operations:
+1. Create Student:
+-> Click on Add Student (redirects to /add-student )
+-> Fill the form, asking for name, course, fee, mobile
+Testcases: 
+Some/All fields are missing -> Alert should come Please fill all the values
+Fee should be number
+Mobile should satisfy the format: (regex) /^(\+91|91|0)?[- ]?(\d{10})$/
+If all these fields name,course,fee and mobile match with already existing entry -> alert : Student already registered
+All the above conditions satify (proper format) -> Student registered successfully
+
+2. Update student:
+-> Click on Update button in row of table displayed on home page (redirects to /update-student/:studentId )
+-> Fill the update user form
+Testcases:
+All fields are missing -> alert : please fill some values
+Fee should be number
+Mobile should satisfy the format: (regex) /^(\+91|91|0)?[- ]?(\d{10})$/
+User changes the studentId field manually in address bar which does not matches with any entry in database 
+	two testcase here:
+	-> student id is not valid number
+	-> student id not found in database
+All the above conditions satisfy (proper format) -> Student details updated successfully
+
+3. Delete Student:
+-> Click on Delete button in row of table displayed on home page (deletes the student successfully and page is refreshed automatically with updated changes)

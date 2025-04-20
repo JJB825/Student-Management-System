@@ -1,0 +1,32 @@
+A. addStudentDetails -> add new student -> /api/student/add (post)
+testcases:
+1. Some/All fields are missing
+2. Fee should be number
+3. Mobile should satisfy the format: (regex) /^(\+91|91|0)?[- ]?(\d{10})$/
+4. If all these fields name,course,fee and mobile match with already existing entry -> alert : Student already registered
+5. All the above conditions satified (proper format) -> New Student registered successfully
+
+B. getStudentDetails -> get all student details -> /api/student/view (get)
+testcases:
+1. successfully gets all students details
+
+C. getSpecificStudentDetails -> get single student details -> /api/student/view/:studentId (get)
+testcases:
+1. studentId is not a valid number (some string or character entered)
+2. student with entered studentId not found
+3. student with entered studentId found and details fetched successfully
+
+D. updateStudentDetails -> update single student details -> /api/student/update/:studentId (patch)
+testcases:
+1. studentId is not a valid number (some string or character entered)
+2. student with entered studentId not found
+3. All fields are missing
+4. Fee should be number
+5. Mobile should satisfy the format: (regex) /^(\+91|91|0)?[- ]?(\d{10})$/
+6. Student details with studentId updated successfully
+
+E. deleteStudentDetails -> api/student/delete/:studentId (delete)
+testcases:
+1. studentId is not a valid number (some string or character entered)
+2. student with entered studentId not found
+3. Student details with studentId deleted successfully

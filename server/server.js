@@ -1,10 +1,10 @@
-import dotenv from "dotenv";
+const dotenv = require("dotenv");
 dotenv.config({ path: "./env" });
-import express from "express";
-import bodyParser from "body-parser";
-import cors from "cors";
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
-import studentRouter from "../server/routes/student.js";
+const studentRouter = require("./routes/student.js");
 
 const server = express();
 const port = process.env.PORT || 8000;
