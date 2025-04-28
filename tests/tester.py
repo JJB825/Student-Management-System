@@ -137,8 +137,8 @@ def test_delete_first_student():
 create_student_testcases = [
     ["", "", "", "", "test_empty_create"],
     ["Alice", "IT", "2004", "efghi", "test_create_invalid_mobile"],
-    ["rishabh", "pc", "1314", "+919876543210", "test_duplicate_entry"],
-    ["Alice", "IT", "2005", "+919876543210", "test_valid_create"]
+    ["Jishnu", "SE", "2005", "+919372180892", "test_duplicate_entry"],
+    ["Kasturi", "CE", "2007", "+919876543210", "test_valid_create"],
 ]
 for testcase in create_student_testcases:
     name, course, fee, mobile, screenshot_name = testcase
@@ -149,7 +149,7 @@ update_student_testcases = [
     ["abcde", "", "", "", "", "test_empty_update"],
     ["abcde", "jofra", "", "", "", "test_invalid_studentId_update"],
     ["6", "", "", "", "214253", "test_update_invalid_mobile"],
-    ["7", "Alisha", "SE", "9000", "+919999999999", "test_valid_update"]
+    ["14", "Jofra", "ML", "8500", "+918888888888", "test_valid_update"]
 ]
 for testcase in update_student_testcases:
     student_id, name, course, fee, mobile, screenshot_name = testcase

@@ -1,11 +1,14 @@
-jest.mock("../db/connect.js", () => ({
-  execute: jest.fn(),
-}));
+jest.mock("../db/connect.js", () => {
+  return jest.fn().mockResolvedValue({
+    execute: jest.fn(),
+  });
+});
 
-let db, controller;
+let initDB, db, controller;
 
-beforeAll(() => {
-  db = require("../db/connect.js");
+beforeAll(async () => {
+  initDB = require("../db/connect.js");
+  db = await initDB();
   controller = require("../controllers/student.js");
 });
 
